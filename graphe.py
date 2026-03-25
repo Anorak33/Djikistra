@@ -5,6 +5,12 @@ class Point :
         self.abs = x
         self.ordo = y
         self.nom = nom
+    
+    def __str__(self):
+        return self.nom
+
+    def __repr__(self):
+        return self.nom
 
     def distance(self,autre:"Point") :
         x1 = self.abs
@@ -17,12 +23,31 @@ class Point :
 class Graphe :
     """Graphe orienté pondéré
     liste de sommet associé à un tuple (coordonnées) et liste arcs"""
+    #TODO Gérer les points pareils
 
     def __init__ (self,g_dict:dict): #Le format de dictionnaire de importation_graph_csv : {"A":((x,y),[successeurs]), "B":((x,y),[successeurs]), ...}
         self.sommet = set()
-        for nom, caracteristique in g_dict.items():
+        self.successeur = []
+        for nom, caracteristique, in g_dict.items():
             self.sommet.add(Point(nom, *caracteristique[0]))
+        for nom, caracteristiques in g_dict.items() :
+            for point in self.sommet :
+                if nom==point.nom :
+                    truc=[]
+                    for caracteristique in caracteristiques[1] :
+                        for pointgraphe in self.sommet :
+                            if caracteristique==pointgraphe.nom :
+                                truc.append((pointgraphe, point.distance(pointgraphe)))
+                    self.successeur.append((point,truc))
 
+    def chemin(self,point:Point):
+        """Renvoie les successeurs d'un point au sein du graphe"""
+        for s in self.successeur:
+                if s[0]==point :
+                    return s[1]
+        
 
-    def truc(self):
-        pass
+if __name__=="__main__" :
+    A=Point("A",0,2)
+    B=Point("B",0,3)
+    print(A.distance(B))
