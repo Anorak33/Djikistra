@@ -10,9 +10,9 @@ def importation_graph(adresse_fichier_csv:str):
                 dictionnaire_graphe[ligne[0]] = ((float(ligne[1]),float(ligne[2])), [])
         if ligne[3] not in dictionnaire_graphe.keys():             #Ajoute le successeur au dictionaire s'il n'existe pas
             dictionnaire_graphe[ligne[3]] = ((float(ligne[4]),float(ligne[5])), [])
-        dictionnaire_graphe[ligne[0]][1].append(ligne[3])            #Ajoute le succeseur du point à sa liste de successeur
-    return dictionnaire_graphe 
+        dictionnaire_graphe[ligne[0]][1].append(ligne[3])           #Ajoute le succeseur du point à sa liste de successeur
+    return dictionnaire_graphe
 
 if __name__ == "__main__":
-    d = importation_graph("csv_files/graph1.csv")
+    d = importation_graph("csv_files/test_files/graphe_test1.csv")
     print(d)

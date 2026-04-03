@@ -1,7 +1,7 @@
 class Point :
     """Point répérés par son nom et ses coordonnées"""
 
-    def __init__(self,nom:str, x:float, y:float):
+    def __init__(self,nom:str, x:float=0, y:float=0):
         self.abs = x
         self.ordo = y
         self.nom = nom
@@ -19,16 +19,19 @@ class Point :
         y2 = autre.ordo
         distance = ((x1-x2)**2 + (y1-y2)**2)**(0.5)
         return distance
-        
+    
+    def __eq__(self, autre:"Point") :
+        return self.nom == autre.nom and self.abs == autre.abs and self.ordo == autre.ordo
+
 class Graphe :
     """Graphe orienté pondéré
     liste de sommet associé à un tuple (coordonnées) et liste arcs"""
-    #TODO Gérer les points pareils
+    # TODO Gérer les points pareils
 
     def __init__ (self,g_dict:dict): #Le format de dictionnaire de importation_graph_csv : {"A":((x,y),[successeurs]), "B":((x,y),[successeurs]), ...}
         self.sommet = set()
         self.successeur = []
-        for nom, caracteristique, in g_dict.items():
+        for nom, caracteristique, in g_dict.items():    
             self.sommet.add(Point(nom, *caracteristique[0]))
         for nom, caracteristiques in g_dict.items() :
             for point in self.sommet :
