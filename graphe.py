@@ -23,6 +23,9 @@ class Point :
     def __eq__(self, autre:"Point") :
         return self.nom == autre.nom and self.abs == autre.abs and self.ordo == autre.ordo
 
+    def __hash__(self):
+        return hash((self.nom, self.abs, self.ordo))
+    
 class Graphe :
     """Graphe orienté pondéré
     liste de sommet associé à un tuple (coordonnées) et liste arcs"""
@@ -42,13 +45,20 @@ class Graphe :
                             if caracteristique==pointgraphe.nom :
                                 truc.append((pointgraphe, point.distance(pointgraphe)))
                     self.successeur.append((point,truc))
+                    
+    def __eq__ (self, autre:"Graphe"):
+        pass
 
     def chemin(self,point:Point):
         """Renvoie les successeurs d'un point au sein du graphe"""
         for s in self.successeur:
                 if s[0]==point :
                     return s[1]
-        
+    def get_Point_from_nom(self, nom:str):
+        for point in self.sommet:
+            if point.nom == nom:
+                return point
+        raise ValueError(f"Le point avec le nom {nom} n'existe pas dans le graphe.")  
 
 if __name__=="__main__" :
     A=Point("A",0,2)

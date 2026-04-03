@@ -14,5 +14,7 @@ def importation_graph(adresse_fichier_csv:str):
     return dictionnaire_graphe
 
 if __name__ == "__main__":
-    d = importation_graph("csv_files/test_files/graphe_test1.csv")
+    d = importation_graph("csv_files/test_files/graphe_test2.csv")
+    c = importation_graph("csv_files/graph1.csv")
     print(d)
+    # print(c)

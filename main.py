@@ -5,39 +5,28 @@ def charger_csv(nom_fichier):
     return Graphe(importation_graph(f"csv_files/{nom_fichier}"))
 
 def dijkstra(graphe, source, cible):
-    # C_cible = [-1 for i in range(len(graphe.sommet))]   #todo comprhension
-    # for succ in graphe.successeur(source):
-    #     if cible == succ[0]:
-    #         C_cible = succ[1]
-    #         break   
-    S = {source}
-    distance = {s: 0 if s == source else float('inf') for s in graphe.sommet}  
-    distance[source] = 0
-    
+    noeud_source = graphe.get_Point_from_nom(source)
+    noeud_cible = graphe.get_Point_from_nom(cible)
+    distance = {s: 0 if s == noeud_source else float('inf') for s in graphe.sommet}    
+    non_visites = graphe.sommet
 
-    non_visites = graphe.sommet-S
-    i = 0
-    s
     while non_visites != set():
         noeud_actuel = None
-        for noeud in non_visites&graphe.successeur(source):
+        for noeud in non_visites:
             if noeud_actuel is None or distance[noeud] < distance[noeud_actuel]:
                 noeud_actuel = noeud
 
-        if distance[noeud_actuel] == float('inf'):
+        if distance[noeud_actuel] == float('inf'): #Tous les noeuds restants sont inaccessibles depuis la source
             break
 
-        S.add(noeud_actuel)
+        for successeur, poids in graphe.chemin(noeud_actuel):
+            nouvelle_distance = distance[noeud_actuel] + poids
+            if nouvelle_distance < distance[successeur]:
+                distance[successeur] = nouvelle_distance
+        
         non_visites.remove(noeud_actuel)
 
-        for succ in graphe.successeur(noeud_actuel):
-            voisin, poids = succ
-            if voisin in non_visites:
-                nouvelle_distance = distance[noeud_actuel] + poids
-                if nouvelle_distance < distance[voisin]:
-                    distance[voisin] = nouvelle_distance
-
-    return distance[cible]
+    return distance[noeud_cible]
 
 def main(nom_fichier, source, cible):
     graphe = charger_csv(nom_fichier)
@@ -45,13 +34,13 @@ def main(nom_fichier, source, cible):
 
 
 
+# if __name__ == "__main__":
+#     graphe = charger_csv("graph1.csv")
+#     for s in graphe.sommet:
+#         print(graphe.chemin(s))
+
+
 if __name__ == "__main__":
-    graphe = charger_csv("graph1.csv")
-    for s in graphe.sommet:
-        print(graphe.chemin(s))
-
-
-if __name__ == "__main2__":
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -61,4 +50,4 @@ if __name__ == "__main2__":
     parser.add_argument("--cible", required=True, help="Le point cible") 
 
     args = parser.parse_args()
-    print(args.fichier, args.source, args.cible)
+    print("{:.2f}".format(dijkstra(charger_csv(args.fichier), args.source, args.cible)))
