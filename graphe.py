@@ -32,32 +32,45 @@ class Graphe :
     # TODO Gérer les points pareils
 
     def __init__ (self,g_dict:dict): #Le format de dictionnaire de importation_graph_csv : {"A":((x,y),[successeurs]), "B":((x,y),[successeurs]), ...}
-        self.sommet = set()
-        self.successeur = []
+        self.sommet = {}
+        self.successeurs = {} #Dictionnaire de la forme {Point: [(Point, distance), (Point, distance), ...], ...}
         for nom, caracteristique, in g_dict.items():    
-            self.sommet.add(Point(nom, *caracteristique[0]))
-        for nom, caracteristiques in g_dict.items() :
-            for point in self.sommet :
-                if nom==point.nom :
-                    truc=[]
-                    for caracteristique in caracteristiques[1] :
-                        for pointgraphe in self.sommet :
-                            if caracteristique==pointgraphe.nom :
-                                truc.append((pointgraphe, point.distance(pointgraphe)))
-                    self.successeur.append((point,truc))
-                    
+            self.sommet[nom] = Point(nom, *caracteristique[0])
+        i = len(g_dict)
+        for point in self.sommet.values():
+            print('c', str(i))
+            i-=1
+            liste_successeurs = g_dict[point.nom][1]
+            self.successeurs[point] = [(self.get_Point_from_nom(successeur), point.distance(self.get_Point_from_nom(successeur))) for successeur in liste_successeurs]
+        
+        # self.successeurs = {point: [(self.get_Point_from_nom(successeur), point.distance(self.get_Point_from_nom(successeur))) for successeur in g_dict[point.nom][1]] for point in self.sommet}
+       
+        # self.successeurs = []
+        # for nom, caracteristiques in g_dict.items() :
+        #     print(i)
+        #     i-=1
+        #     for point in self.sommet :
+        #         if nom==point.nom :
+        #             truc=[]
+        #             for caracteristique in caracteristiques[1] :
+        #                 for pointgraphe in self.sommet :
+        #                     if caracteristique==pointgraphe.nom :
+        #                         truc.append((pointgraphe, point.distance(pointgraphe)))
+        #             self.successeurs.append((point,truc))
+
+        print(self.successeurs)
     def __eq__ (self, autre:"Graphe"):
         pass
 
     def chemin(self,point:Point):
         """Renvoie les successeurs d'un point au sein du graphe"""
-        for s in self.successeur:
-                if s[0]==point :
-                    return s[1]
+        return self.successeurs[point]
+                
     def get_Point_from_nom(self, nom:str):
-        for point in self.sommet:
-            if point.nom == nom:
-                return point
+        # for point in self.sommet:
+        #     if point.nom == nom:
+        #         return point
+        return self.sommet[nom]    
         raise ValueError(f"Le point avec le nom {nom} n'existe pas dans le graphe.")  
 
 if __name__=="__main__" :
