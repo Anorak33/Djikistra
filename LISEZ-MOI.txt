@@ -1,0 +1,32 @@
+I. 
+Dkikstra demande des poids positif pour éviter d'avoir des graphes dont la solution optimal nécessite une infinité d'étape.
+Par exemple, pour le graphe définit par V = {A,B} et E = {(A,B,-1),(B,A,0)}, le trajet optimal entre A et B est un aller-retours infini entre A et B, 
+alors que Dkikstra s'arreterait à A->B car il ne peut étudier que des noeud non visité (et que A est de base visité)
+
+II.
+Notre implémentation consiste en 3 modules : 
+    importation_graphe.py pour importer un graphe depuis un CSV
+    graphe.py pour définir la notion de Point et de Graphe
+    main.py qui contient l'algorithme de Dkikstra
+
+
+importation_graphe.py contient une seul sous-programme : 
+    importation_graphe qui prend en parmamètre adresse_fichier_csv 
+    Elle renvoie un dictionaire de la forme : {nom_point : ((coords_x,coords_y), [successeurs1,...]),...}
+
+graphe.py contient deux classe :
+    Point qui prend un nom et des coordonnées en initialisation
+    Il admet comme méthodes : 
+        __repr__ renvoie son nom
+        __eq__ verifie l'égalité entre le nom et les coordonnées
+        distance qui prend un autre point en parmamètre et renvoie la distance euclidienne entre les deux points.
+
+    Graphe qui prend en parmamètre un dictionaire de la meme forme que celui renvoyé par importation_graphe
+    Il contient un dictionaire de ses sommets de la forme {nom:Point, nom:Point,...},
+    et un autre dictionaire des successeurs de chaques point de la forme {Point: [(Point, distance), (Point, distance), ...], ...}.
+    Il admet comme méthodes :
+        chemin qui prend comme parmamètre un point et qui renvoie les successeurs de ce point
+        get_Point_from_nom qui prend comme parmamètre un nom d'un point du graphe et qui renvoie l'objet associé
+
+main.py contient deux sous-programmes : 
+    

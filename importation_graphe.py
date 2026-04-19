@@ -1,4 +1,4 @@
-def importation_graph(adresse_fichier_csv:str):
+def importation_graphe(adresse_fichier_csv:str):
     with open(adresse_fichier_csv, newline='', encoding="utf-8") as csv_file:
         texte = csv_file.read()
     lignes = texte.split()
@@ -6,7 +6,6 @@ def importation_graph(adresse_fichier_csv:str):
     dictionnaire_graphe = {}
 
     for i,ligne in enumerate(lignes_propre):
-
         if ligne[0] not in dictionnaire_graphe.keys():             #Ajoute le point au dictionnaire s'il n'exite pas
                 dictionnaire_graphe[ligne[0]] = ((float(ligne[1]),float(ligne[2])), [])
         if ligne[3] not in dictionnaire_graphe.keys():             #Ajoute le successeur au dictionaire s'il n'existe pas
@@ -15,7 +14,7 @@ def importation_graph(adresse_fichier_csv:str):
     return dictionnaire_graphe
 
 if __name__ == "__main__":
-    d = importation_graph("csv_files/test_files/graphe_test2.csv")
-    c = importation_graph("csv_files/graph1.csv")
+    d = importation_graphe("csv_files/test_files/graphe_test2.csv")
+    c = importation_graphe("csv_files/graph1.csv")
     print(d)
     # print(c)
