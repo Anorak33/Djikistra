@@ -1,0 +1,128 @@
+Instructions d'exécution : Executer la commande du type : python main.py --fichier nom_fichier --source noeud_source --cible noeud_cible
+                           Lancer le fichier demonstration.py 
+                           Ne pas suprimer le dossier fichiers_test
+
+Format du fichier CSV (Pas de caractère blanc supplémentaire : espace, tabulation, saut de ligne...) : 
+depart,depart_abscisse,depart_ordonnee,arrivee,arrivee_abscisse,arrivee_ordonnee
+nom_sommet1,coord_x,coord_y,nom_successeur1,coord_x_successeur1,coord_y_successeur1
+nom_sommet1,coord_x,coord_y,nom_successeur2,coord_x_successeur2,coord_y_successeur2
+nom_sommet2,coord_x,coord_y,nom_successeur1,coord_x_successeur1,coord_y_successeur1
+...
+/!\ Les fichiers CSV doivent être placés dans le dossier fichiers_csv, 
+
+QUESTIONS : 
+
+I. 
+Dijkstra demande des poids positifs pour éviter d'avoir des graphes dont la solution optimale nécessite une infinité d'étapes.
+Par exemple, pour le graphe défini par V = {A,B} et E = {(A,B,-1),(B,A,0)}, le trajet optimal entre A et B est un aller-retour infini entre A et B, 
+alors que Dijkstra s'arrêterait à A->B car il ne peut étudier que des nœuds non visités (et que A est initialement visité).
+
+
+II.
+Notre implémentation consiste en 3 modules : 
+    importation_graphe.py pour importer un graphe depuis un CSV ;
+    graphe.py pour définir la notion de Sommet et de Graphe ;
+    main.py qui contient l'algorithme de Dijkstra.
+
+
+importation_graphe.py contient un seul sous-programme : 
+    importation_graphe qui prend en paramètre adresse_fichier_csv.
+    Elle renvoie un dictionnaire de la forme : {nom_sommet : ((coords_x,coords_y), [successeurs1,...]),...}.
+
+graphe.py contient deux classes :
+    Sommet qui prend un nom et des coordonnées en initialisation ;
+    Elle admet comme méthodes : 
+        __repr__ renvoie son nom ;
+        __eq__ vérifie l'égalité entre le nom et les coordonnées ;
+        distance qui prend un autre sommet en paramètre et renvoie la distance euclidienne entre les deux sommets.
+
+    Graphe qui prend en paramètre un dictionnaire de la même forme que celui renvoyé par importation_graphe ;
+    Elle contient un dictionnaire de ses sommets de la forme {nom:Sommet, nom:Sommet,...},
+    et un autre dictionnaire des successeurs de chaque sommet de la forme {Sommet: [(Sommet, distance), (Sommet, distance), ...], ...}.
+    Elle admet comme méthodes :
+        chemin qui prend comme paramètre un sommet et qui renvoie les successeurs de ce sommet ;
+        get_Sommet_from_nom qui prend comme paramètre un nom d'un sommet du graphe et qui renvoie l'objet associé.
+
+main.py contient cinq sous-programmes :
+    chargez_csv, qui prend en paramètre un nom de fichier csv
+    et qui renvoie le dictionnaire de graphe correspondant ;
+    
+    coordonnees_sommet qui prend en paramètre un graphe et un sommet du graphe
+    et qui renvoie les coordonnées du sommet correspondant ;
+
+    reconstruire_chemin, qui prend en paramètre un dictionnaire de type {sommet : prédécesseur}, un nœud source et un nœud cible
+    et renvoie le chemin entre le nœud source et le nœud cible ;
+
+    plus_court_chemin, qui prend en paramètre un graphe, un nœud source et un nœud cible
+    et qui renvoie la distance ainsi que le plus court chemin entre les sommets ;
+
+    main, qui prend en paramètre un nom de fichier csv, et le nom d'un sommet cible et d'un sommet source du graphe
+    et qui affiche la distance et le chemin entre les sommets. 
+    Dans le cas où le fichier est le graphe de Toulouse, il affiche aussi la carte correspondante (le dossier 'ressources/' est nécessaire).
+
+
+III.
+Dans le pire des cas, la complexité est d'ordre O(n²). Cependant, si le graphe est peu dense, l'algorithme se terminera bien plus rapidement. 
+Par exemple, pour toulouse.csv, il y a environ 2.7 successeurs par sommet, et l'algorithme se termine en 7 millions d'étapes majeures au lieu de 16 milliards (40000²),
+pour cette ligne de commande 'python main.py --fichier toulouse.csv --source 235471148 --cible 6441765110'.
+Cette haute complexité est liée à la première partie de l'algorithme, qui nécessite de passer (au pire), par tous les sommets non visités.
+
+    for noeud in non_visites&successeurs_noeud_visite:
+        if noeud_actuel is None or distance[noeud] < distance_noeud_actuel:
+            noeud_actuel = noeud
+            distance_noeud_actuel = distance[noeud_actuel]
+
+L'intersection entre non_visites et successeurs_noeud_visite permet de limiter grandement le nombre de sommets à vérifier : 
+dans le cadre de toulouse.csv, on passe de 40000 au max sans l'intersection à 300 au max.
+
+Un exemple de mauvais graphe pour l'algorithme serait : V = {A,B,C,D,E}, E = {(A,B,1),(A,C,1),(A,D,1),(A,E,2),(B,E,2),(C,E,2),(D,E,2)},
+l'algorithme entre A et E devant charger tous les points, car ils font tous partie des successeurs de A, avant de prendre le plus court (A->E).
+
+Après quelques recherches, on pourrait utiliser un 'tas binaire', pour réduire la complexité à O(n.ln(n)), mais cela est hors de nos compétences actuelles.
+
+
+Nos principales structures de données sont : 
+    Dans importation_graphe:
+        on renvoie un dictionnaire de la forme {"nom": ((coord_x,coord_y),[nom_successeurs])}, qui permet de former le Graphe de manière intuitive.
+
+    Dans Graphe :
+        Un dictionnaire {nom : sommet} pour stocker les sommets afin de pouvoir récupérer un sommet associé à un nom en O(1) ;
+        Un dictionnaire {sommet : (successeurs,distance)} pour récupérer les successeurs d'un sommet en O(1).
+
+    Dans Dijkstra :
+        Un dictionnaire {sommet : distance} des distances au nœud source pour récupérer facilement la distance ;
+        Un set des nœuds non visités et un set des successeurs des nœuds visités pour pouvoir faire une intersection rapide entre les deux ;
+        Un dictionnaire {sommet : prédécesseur} du prédécesseur le plus proche du nœud cible de chaque sommet, afin de reconstruire en un minimum d'étapes le chemin.
+
+L'invariant de représentation est :
+    Pour tout sommet s visité, distance[s] est la plus petite distance entre le sommet source et s.
+    Pour tout sommet s non visité, le chemin le plus court commence forcément par le chemin pour aller à un sommet intermédiaire si, 
+    avec, "la plus petite distance entre s et le sommet source" qui vaut : distance[si] + "la distance retournée par l'algorithme de Dijkstra entre si et s".
+
+IV.
+
+Notre campagne de tests est gérée dans quatre fichiers tests qui testent nos deux classes et nos deux modules : 
+
+    Dans test_point.py, on teste la classe Point c'est-à-dire que l'on teste :
+        l'attribution des coordonnées du point et de son nom ainsi que le fonctionnement des coordonnées par défaut.
+        la distance entre deux points avec des coordonnées relatives.
+        que la distance entre un point et lui-même vaut zéro.
+        Remarque : il ne peut pas y avoir de poids négatif car celui-ci est égal à la distance qui est par définition positive ou nulle. Cela explique pourquoi aucun test ne concerne cet aspect.
+
+    Dans test_graphe.py, on teste la classe Graphe c'est-à-dire que l'on teste :
+        l'initialisation des successeurs et des sommets du graphe.
+        que la méthode Point_depuis_nom renvoie un Point avec les bons attributs.
+        que la méthode successeur renvoie un set de tuples avec le successeur et sa distance au point si le point a des successeurs et un set vide sinon.
+        qu'un Graphe créé à partir d'un dictionnaire vide a des attributs qui valent des dictionnaires vides.
+
+    Dans test_importation_graphe.py, on teste que le module transforme un fichier CSV en dictionnaire exploitable pour notre classe Graphe c'est-à-dire que l'on teste :
+        qu'un fichier se transforme en le dictionnaire voulu.
+        qu'un fichier dont les noms de point sont des entiers se transforme en le dictionnaire voulu, c'est-à-dire avec les noms en str et non en int.
+        qu'un fichier vide crée un dictionnaire vide.
+
+    Dans test_plus_court_chemin.py, on teste que la fonction plus_court_chemin de main.py renvoie le plus court chemin entre un point "départ" et un point "arrivée" c'est-à-dire que l'on teste :
+        que pour un graphe quelconque, le fichier renvoie bien le plus court chemin.
+        que s'il y a plusieurs chemins de même distance, qu'il en choisit un, aléatoire, parmi eux.
+        que le chemin entre un point et lui-même renvoie lui-même et une distance de 0.
+        que le chemin entre un point et un autre qui lui est inaccessible est vide et que la distance est infinie.
+

@@ -2,6 +2,13 @@ class Point :
     """Point répérés par son nom et ses coordonnées"""
 
     def __init__(self,nom:str, x:float=0, y:float=0):
+        """
+        Point répérés par son nom et ses coordonnées
+        Paramètre:
+            nom (str): le nom
+            x (float): la coordonnée x.
+            y (float): la coordonnée y. 
+        """
         self.abs = x
         self.ordo = y
         self.nom = nom
@@ -12,7 +19,15 @@ class Point :
     def __repr__(self):
         return self.nom
 
-    def distance(self,autre:"Point") :
+    def distance(self,autre:"Point")->float:
+        """Renvoie la distance euclidienne entre deux points
+
+        Paramètre:
+            autre (Point): le point avec lequel on veut calculer la distance
+
+        Returns:
+            float: la distance euclidienne entre les deux points
+        """
         x1 = self.abs
         y1 = self.ordo
         x2 = autre.abs
@@ -26,45 +41,46 @@ class Point :
     def __hash__(self):
         return hash((self.nom, self.abs, self.ordo))
     
-class Graphe :
-    """Graphe orienté pondéré
-    liste de sommet associé à un tuple (coordonnées) et liste arcs"""
-    # TODO Gérer les points pareils
+class Graphe:
+    """Graphe orienté pondéré : prend en argument un dictionnaire 
+    Attribut sommet : dictionnaire, sommet associé au point correspondant
+    Attribut successeurs : dictionnaire, nom de point associé à un tuple du tuple des coordonnées de ce point et de la liste des noms des successeurs (str)
+    """
 
-    def __init__ (self,g_dict:dict): #Le format de dictionnaire de importation_graph_csv : {"A":((x,y),[successeurs]), "B":((x,y),[successeurs]), ...}
-        self.sommet = {} #Dictionnaire de la forme {nom:Point, nom:Point,...}
-        self.successeurs = {} #Dictionnaire de la forme {Point: [(Point, distance), (Point, distance), ...], ...}
+
+    def __init__ (self,g_dict:dict): #Le format de dictionnaire de importation_graphe : {"A":((x,y),{successeurs}), "B":((x,y),{successeurs}), ...}
+        self.sommet = {} #Dictionnaire de la forme {nom:Sommet, nom:Sommet,...}
+        self.successeurs = {} #Dictionnaire de la forme {Sommet: [(Sommet, distance), (Sommet, distance), ...], ...}
         for nom, caracteristique, in g_dict.items():    
             self.sommet[nom] = Point(nom, *caracteristique[0])
         i = len(g_dict)
-        for point in self.sommet.values():
+        for sommet in self.sommet.values():
             # print('c', str(i))
             i-=1
-            liste_successeurs = g_dict[point.nom][1]
-            self.successeurs[point] = {(self.get_Point_from_nom(successeur), point.distance(self.get_Point_from_nom(successeur))) for successeur in liste_successeurs}
+            liste_successeurs = g_dict[sommet.nom][1]
+            self.successeurs[sommet] = {(self.Point_depuis_nom(successeur), sommet.distance(self.Point_depuis_nom(successeur))) for successeur in liste_successeurs}
 
-        # self.successeurs = []
-        # for nom, caracteristiques in g_dict.items() :
-        #     print(i)
-        #     i-=1
-        #     for point in self.sommet :
-        #         if nom==point.nom :
-        #             truc=[]
-        #             for caracteristique in caracteristiques[1] :
-        #                 for pointgraphe in self.sommet :
-        #                     if caracteristique==pointgraphe.nom :
-        #                         truc.append((pointgraphe, point.distance(pointgraphe)))
-        #             self.successeurs.append((point,truc))
+    def successeurs_sommet(self,sommet:Point)->set:
+        """Renvoie les successeurs de sommet, et les distances associées
 
-    def chemin(self,point:Point):
-        """Renvoie les successeurs d'un point au sein du graphe"""
-        return self.successeurs.get(point,{})
+        Paramètre:
+            sommet (Point): le sommet pour lequel on veut obtenir les successeurs
+
+        Returns:
+            set: l'ensemble des successeurs du sommet avec leurs distances associées, de la forme {(successeur1, distance1), (successeur2, distance2), ...}
+        """
+        return self.successeurs.get(sommet,{})
                 
-    def get_Point_from_nom(self, nom:str):
-        return self.sommet[nom]    
+    def Point_depuis_nom(self, nom:str)->Point:
+        """Renvoie l'objet de type Point associé au nom du sommet
 
+        Paramètre:
+            nom (str): le nom du point que l'on veut obtenir
 
-if __name__=="__main__" :
-    A=Point("A",0,2)
-    B=Point("B",0,3)
-    print(A.distance(B))
+        Returns:
+            Point: le point correspondant au nom donné
+        """
+        try:
+            return self.sommet[nom]
+        except KeyError:
+            raise ValueError(f"Le Point '{nom}' n'est pas dans le graphe")

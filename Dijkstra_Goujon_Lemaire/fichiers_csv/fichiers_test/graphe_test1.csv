@@ -1,0 +1,5 @@
+depart,depart_abscisse,depart_ordonnee,arrivee,arrivee_abscisse,arrivee_ordonnee
+Truc,3,12,Muche,45,1
+Truc,3,12,Bidule,0,0
+Bidule,0,0,Muche,45,1
+Machin,-2,-6,Muche,45,1
